@@ -164,7 +164,7 @@
 
     const introHtml = renderHtml(wiki.intro || "学校不教的社会生存常识。");
     sheet.innerHTML = `
-      <p class="kicker">Cover / 封面</p>
+      <p class="kicker">封面</p>
       <h1>成人世界说明书</h1>
       <div class="home-lead">${introHtml}</div>
       <h2>在编条目</h2>
@@ -180,10 +180,10 @@
   }
 
   async function renderPage(page) {
-    document.title = `${page.title} · 成人世界说明书`;
+    document.title = `${page.title} - 成人世界说明书`;
     const markdown = await loadText(page.file);
     sheet.innerHTML = `
-      <p class="kicker">${escapeHtml(page.group)} · ${page.index}</p>
+      <p class="kicker">${escapeHtml(page.group)} ${page.index}</p>
       ${renderHtml(markdown)}
     `;
     renderCatalog(searchEl.value);
@@ -199,8 +199,8 @@
     }
     const page = wiki.pages.find((p) => p.slug === slug || p.title === slug);
     if (!page) {
-      document.title = "未找到 · 成人世界说明书";
-      sheet.innerHTML = `<p class="kicker">404</p><h1>这一页还没装订进去</h1><p class="error">目录里没有「${escapeHtml(slug)}」。先写 Markdown，再把它加进 <code>目录.md</code>。</p>`;
+      document.title = "未找到 - 成人世界说明书";
+      sheet.innerHTML = `<p class="kicker">未找到</p><h1>这一页还没装订进去</h1><p class="error">目录里没有「${escapeHtml(slug)}」。先写 Markdown，再把它加进 <code>目录.md</code>。</p>`;
       renderCatalog(searchEl.value);
       return;
     }

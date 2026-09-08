@@ -102,21 +102,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 1.4rem 0 1.1rem;
   border-right: 1px solid rgba(0, 0, 0, 0.35);
   box-shadow: 8px 0 24px rgba(42, 24, 20, 0.18);
-}
-
-.spine-kicker,
-.spine-foot {
-  writing-mode: vertical-rl;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(240, 226, 204, 0.62);
-  margin: 0;
 }
 
 .spine-title {
@@ -332,7 +321,6 @@ body {
   font-size: 12px;
   letter-spacing: 0.18em;
   color: var(--seal);
-  text-transform: uppercase;
 }
 
 .sheet h1,
@@ -510,30 +498,16 @@ input {
     position: relative;
     height: auto;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0.7rem 1rem;
     writing-mode: horizontal-tb;
   }
 
-  .spine-kicker,
-  .spine-foot,
   .spine-title {
     writing-mode: horizontal-tb;
-  }
-
-  .spine-title {
     flex-direction: row;
     gap: 0.08rem;
     font-size: 16px;
-  }
-
-  .spine-kicker,
-  .spine-foot {
-    font-size: 9px;
-  }
-
-  .spine-foot {
-    display: none;
   }
 
   .catalog-toggle {
