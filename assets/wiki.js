@@ -1,10 +1,10 @@
 (() => {
   const CATALOG_FILE = "目录.md";
-  const sheet = document.querySelector("#sheet");
+  const article = document.querySelector("#article");
   const catalogEl = document.querySelector("#catalog");
   const searchEl = document.querySelector("#search");
-  const toggleEl = document.querySelector(".catalog-toggle");
-  const backdrop = document.querySelector("#catalog-backdrop");
+  const toggleEl = document.querySelector(".nav-toggle");
+  const navEl = document.querySelector("#nav");
 
   const wiki = {
     groups: [],
@@ -15,14 +15,10 @@
 
   marked.use({ gfm: true, breaks: false });
 
-  function pad(n) {
-    return String(n).padStart(2, "0");
-  }
-
   function parseCatalog(markdown) {
     const groups = [];
     let current = null;
-    let intro = [];
+    const intro = [];
 
     for (const raw of markdown.split(/\r?\n/)) {
       const line = raw.trim();
@@ -35,25 +31,19 @@
         continue;
       }
       if (item && current) {
-        const title = item[1].trim();
-        const file = item[2].trim();
-        const page = { title, file, group: current.name };
-        current.pages.push(page);
+        current.pages.push({
+          title: item[1].trim(),
+          file: item[2].trim(),
+          group: current.name,
+        });
         continue;
       }
-      if (!current && line && !line.startsWith("# ")) {
-        intro.push(line);
-      }
+      if (!current && line && !line.startsWith("# ")) intro.push(line);
     }
 
-    const pages = groups.flatMap((g, gi) =>
-      g.pages.map((p, pi) => ({
-        ...p,
-        index: `${pad(gi + 1)}.${pad(pi + 1)}`,
-        slug: p.title,
-      }))
+    const pages = groups.flatMap((g) =>
+      g.pages.map((p) => ({ ...p, slug: p.title }))
     );
-
     return { groups, pages, intro: intro.join("\n") };
   }
 
@@ -65,35 +55,32 @@
     return decodeURIComponent(location.hash.replace(/^#\/?/, ""));
   }
 
-  function closeCatalog() {
-    document.body.classList.remove("catalog-open");
+  function closeNav() {
+    document.body.classList.remove("nav-open");
     toggleEl.setAttribute("aria-expanded", "false");
-    backdrop.hidden = true;
   }
 
-  function openCatalog() {
-    document.body.classList.add("catalog-open");
-    toggleEl.setAttribute("aria-expanded", "true");
-    backdrop.hidden = false;
+  function escapeHtml(s) {
+    return s
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
   }
 
   function renderCatalog(filter = "") {
     const q = filter.trim().toLowerCase();
     const html = wiki.groups
       .map((group) => {
-        const pages = group.pages.filter((p) => {
-          if (!q) return true;
-          return `${group.name} ${p.title}`.toLowerCase().includes(q);
-        });
+        const pages = group.pages.filter((p) =>
+          q ? `${group.name} ${p.title}`.toLowerCase().includes(q) : true
+        );
         if (!pages.length) return "";
         const items = pages
           .map((p) => {
             const current = currentSlug() === p.slug;
             return `<li>
-              <a href="${hashFor(p)}" ${current ? 'aria-current="page"' : ""}>
-                <span class="n">${p.index}</span>
-                <span>${escapeHtml(p.title)}</span>
-              </a>
+              <a href="${hashFor(p)}" ${current ? 'aria-current="page"' : ""}>${escapeHtml(p.title)}</a>
             </li>`;
           })
           .join("");
@@ -103,17 +90,8 @@
         </section>`;
       })
       .join("");
-
     catalogEl.innerHTML =
       html || `<p class="catalog-empty">目录里没有匹配的条目。</p>`;
-  }
-
-  function escapeHtml(s) {
-    return s
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;");
   }
 
   function rewriteWiki(markdown) {
@@ -137,8 +115,7 @@
   }
 
   async function loadText(path) {
-    const url = new URL(path, document.baseURI);
-    const res = await fetch(url);
+    const res = await fetch(new URL(path, document.baseURI));
     if (!res.ok) throw new Error(`${path} ${res.status}`);
     return res.text();
   }
@@ -147,51 +124,100 @@
     const prepared = rewriteMdLinks(rewriteWiki(markdown));
     return DOMPurify.sanitize(marked.parse(prepared), {
       ADD_ATTR: ["target", "rel", "aria-current", "title"],
-      ADD_TAGS: ["span"],
     });
+  }
+
+  function attachToc() {
+    const heads = [...article.querySelectorAll("h2")];
+    if (heads.length < 2) return;
+    heads.forEach((h, i) => {
+      h.id = `s-${i + 1}`;
+    });
+    const toc = document.createElement("nav");
+    toc.className = "page-toc";
+    toc.innerHTML = `<p>本页目录</p><ul>${heads
+      .map(
+        (h) =>
+          `<li><a href="#${h.id}" data-scroll="${h.id}">${escapeHtml(h.textContent)}</a></li>`
+      )
+      .join("")}</ul>`;
+    const firstH2 = heads[0];
+    article.insertBefore(toc, firstH2);
+    toc.addEventListener("click", (e) => {
+      const a = e.target.closest("[data-scroll]");
+      if (!a) return;
+      e.preventDefault();
+      document.getElementById(a.dataset.scroll)?.scrollIntoView({
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+    });
+  }
+
+  function pagerHtml(page) {
+    const i = wiki.pages.findIndex((p) => p.slug === page.slug);
+    if (i < 0 || wiki.pages.length < 2) return "";
+    const prev = wiki.pages[i - 1];
+    const next = wiki.pages[i + 1];
+    return `<nav class="pager">
+      ${
+        prev
+          ? `<a class="pager-prev" href="${hashFor(prev)}"><span>上一篇</span><strong>${escapeHtml(prev.title)}</strong></a>`
+          : "<span></span>"
+      }
+      ${
+        next
+          ? `<a class="pager-next" href="${hashFor(next)}"><span>下一篇</span><strong>${escapeHtml(next.title)}</strong></a>`
+          : ""
+      }
+    </nav>`;
   }
 
   function renderHome() {
     document.title = "成人世界说明书";
-    const start = wiki.pages[0];
+    article.classList.add("home");
     const items = wiki.pages
       .map(
         (p) => `<li>
-          <a href="${hashFor(p)}"><span class="n">${p.index}</span>${escapeHtml(p.title)}</a>
+          <a href="${hashFor(p)}"><span class="g">${escapeHtml(p.group)}</span>${escapeHtml(p.title)}</a>
         </li>`
       )
       .join("");
-
-    const introHtml = renderHtml(wiki.intro || "学校不教的社会生存常识。");
-    sheet.innerHTML = `
-      <p class="kicker">封面</p>
+    article.innerHTML = `
+      <p class="kicker">说明书</p>
       <h1>成人世界说明书</h1>
-      <div class="home-lead">${introHtml}</div>
+      <div class="lede">${renderHtml(wiki.intro || "学校不教的社会生存常识。")}</div>
       <h2>在编条目</h2>
-      <ul class="home-list">${items}</ul>
-      ${
-        start
-          ? `<p>从这里开始写：<a href="${hashFor(start)}">${escapeHtml(start.title)}</a>。</p>`
-          : `<p>目录还是空的。复制 <code>_templates/条目模板.md</code> 到 <code>pages/</code>，再把链接写进 <code>目录.md</code>。</p>`
-      }
+      <ul class="entry-list">${items}</ul>
     `;
     renderCatalog(searchEl.value);
-    sheet.focus({ preventScroll: true });
+    article.focus({ preventScroll: true });
   }
 
   async function renderPage(page) {
     document.title = `${page.title} - 成人世界说明书`;
+    article.classList.remove("home");
     const markdown = await loadText(page.file);
-    sheet.innerHTML = `
-      <p class="kicker">${escapeHtml(page.group)} ${page.index}</p>
+    article.innerHTML = `
+      <p class="kicker">${escapeHtml(page.group)}</p>
       ${renderHtml(markdown)}
+      ${pagerHtml(page)}
     `;
+    attachToc();
     renderCatalog(searchEl.value);
-    sheet.focus({ preventScroll: true });
-    window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    article.focus({ preventScroll: true });
+    window.scrollTo({
+      top: 0,
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
   }
 
   async function route() {
+    closeNav();
     const slug = currentSlug();
     if (!slug) {
       renderHome();
@@ -200,29 +226,29 @@
     const page = wiki.pages.find((p) => p.slug === slug || p.title === slug);
     if (!page) {
       document.title = "未找到 - 成人世界说明书";
-      sheet.innerHTML = `<p class="kicker">未找到</p><h1>这一页还没装订进去</h1><p class="error">目录里没有「${escapeHtml(slug)}」。先写 Markdown，再把它加进 <code>目录.md</code>。</p>`;
+      article.classList.remove("home");
+      article.innerHTML = `<p class="kicker">未找到</p><h1>没有这一页</h1><p class="error">目录里没有「${escapeHtml(slug)}」。写好 Markdown 后，把链接加进 <code>目录.md</code>。</p>`;
       renderCatalog(searchEl.value);
       return;
     }
     try {
       await renderPage(page);
     } catch (err) {
-      sheet.innerHTML = `<p class="kicker">读取失败</p><h1>${escapeHtml(page.title)}</h1><p class="error">${escapeHtml(String(err.message))}</p>`;
+      article.innerHTML = `<p class="kicker">读取失败</p><h1>${escapeHtml(page.title)}</h1><p class="error">${escapeHtml(String(err.message))}</p>`;
     }
   }
 
   toggleEl.addEventListener("click", () => {
-    if (document.body.classList.contains("catalog-open")) closeCatalog();
-    else openCatalog();
+    const open = document.body.classList.toggle("nav-open");
+    toggleEl.setAttribute("aria-expanded", String(open));
   });
-  backdrop.addEventListener("click", closeCatalog);
   catalogEl.addEventListener("click", (e) => {
-    if (e.target.closest("a")) closeCatalog();
+    if (e.target.closest("a")) closeNav();
   });
   searchEl.addEventListener("input", () => renderCatalog(searchEl.value));
   window.addEventListener("hashchange", route);
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeCatalog();
+    if (e.key === "Escape") closeNav();
   });
 
   (async function boot() {
@@ -240,7 +266,7 @@
       });
       await route();
     } catch (err) {
-      sheet.innerHTML = `<p class="kicker">装订中断</p><h1>读不到目录</h1><p class="error">请用本地服务器打开本页，不要直接双击 index.html。<br>${escapeHtml(String(err.message))}</p>`;
+      article.innerHTML = `<p class="kicker">读不到目录</p><h1>无法打开说明书</h1><p class="error">请用本地服务器打开，不要直接双击 index.html。<br>${escapeHtml(String(err.message))}</p>`;
     }
   })();
 })();

@@ -2,52 +2,38 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#2a1814">
+  <meta name="theme-color" content="#f5f4ed">
   <meta name="description" content="学校不教、家里也未必系统讲过的社会生存常识。">
+  <meta name="generator" content="Kami">
   <title>成人世界说明书</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
-  <link rel="stylesheet" href="assets/wiki.css">
+  <link rel="stylesheet" href="assets/wiki.css?v=kami1">
 </head>
 <body>
-  <a class="skip" href="#sheet">跳到正文</a>
+  <a class="skip" href="#article">跳到正文</a>
 
-  <aside class="spine" aria-label="手册书脊">
-    <h1 class="spine-title">
-      <span>成</span><span>人</span><span>世</span><span>界</span>
-      <span class="spine-title-sub">说</span><span class="spine-title-sub">明</span><span class="spine-title-sub">书</span>
-    </h1>
-  </aside>
+  <header class="top">
+    <a class="brand" href="#/">成人世界说明书</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav">目录</button>
+  </header>
 
-  <div class="stage">
-    <header class="mast">
-      <p class="mast-brand">成人世界说明书</p>
+  <div class="frame">
+    <aside class="nav" id="nav">
       <label class="search">
         <span class="sr-only">检索目录</span>
         <input id="search" type="search" placeholder="检索条目" autocomplete="off" enterkeyhint="search">
       </label>
-      <button class="catalog-toggle" type="button" aria-expanded="false" aria-controls="catalog">
-        目录
-      </button>
-    </header>
+      <nav id="catalog" aria-label="条目目录"></nav>
+    </aside>
 
-    <div class="workspace">
-      <nav class="catalog" id="catalog" aria-label="条目目录"></nav>
-
-      <div class="sheet-stack">
-        <div class="sheet-shadow" aria-hidden="true"></div>
-        <main class="sheet" id="sheet" tabindex="-1">
-          <p class="loading">正在装订……</p>
-        </main>
-      </div>
-    </div>
+    <main class="prose" id="article" tabindex="-1">
+      <p class="muted">载入中</p>
+    </main>
   </div>
-
-  <div class="catalog-backdrop" id="catalog-backdrop" hidden></div>
 
   <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
-  <script src="assets/wiki.js"></script>
+  <script src="assets/wiki.js?v=kami1"></script>
 </body>
 </html>
