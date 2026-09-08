@@ -1,14 +1,32 @@
 @font-face {
-  font-family: "TsangerJinKai02";
-  src: url("https://cdn.jsdelivr.net/gh/AlfredoSequeworthy/TsangerJinKai02@main/TsangerJinKai02-W04.woff2") format("woff2");
+  font-family: "Noto Sans SC";
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-sc@5.2.5/latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-sc@5.2.5/latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-sc@5.2.5/chinese-simplified-400-normal.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "TsangerJinKai02";
-  src: url("https://cdn.jsdelivr.net/gh/AlfredoSequeworthy/TsangerJinKai02@main/TsangerJinKai02-W05.woff2") format("woff2");
+  font-family: "Noto Sans SC";
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-sc@5.2.5/chinese-simplified-500-normal.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -29,11 +47,11 @@
   --stone: #6b6a64;
   --border: #e8e6dc;
   --border-soft: #e5e3d8;
-  --serif: "TsangerJinKai02", "Source Han Serif SC", "Source Han Serif CN",
-    "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
-  --sans: var(--serif);
-  --mono: "JetBrains Mono", "SF Mono", Consolas, "TsangerJinKai02",
-    "Source Han Serif SC", monospace;
+  --sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC",
+    "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  --serif: var(--sans);
+  --mono: "JetBrains Mono", "SF Mono", Consolas, "Noto Sans SC",
+    "PingFang SC", monospace;
 }
 
 *,
@@ -56,11 +74,11 @@ body {
   min-height: 100vh;
   background: var(--parchment);
   color: var(--near-black);
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 15px;
   font-weight: 400;
   line-height: 1.58;
-  letter-spacing: 0.4px;
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
 }
 
